@@ -59,13 +59,13 @@ def clear_data():
 
 
 def create_teams(seeder):
-    for i in range(16):
+    for i in range(4):
         team = Team(team_name=seeder.faker.name())
         team.save()
 
 
 def create_user(seeder):
-    names = [seeder.faker.unique.user_name() for i in range(500)]
+    names = [seeder.faker.unique.user_name() for i in range(50)]
 
     password = 'admin'
     # create a admin site user
@@ -78,7 +78,7 @@ def create_user(seeder):
     user.save()
 
     # create 10 admin
-    for i in range(0, 10):
+    for i in range(0, 1):
         user = User(
             username=names[i],
             password=password,
@@ -91,7 +91,7 @@ def create_user(seeder):
 
     # create 16 coach
     password = 'coach'
-    for i in range(20, 36):
+    for i in range(2, 6):
         user = User(
             username=names[i],
             password=password,
@@ -104,7 +104,7 @@ def create_user(seeder):
 
     # create 200 players
     password = 'player'
-    for i in range(50, 300):
+    for i in range(7, 47):
         user = User(
             username=names[i],
             password=password,
