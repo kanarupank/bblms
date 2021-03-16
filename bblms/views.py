@@ -14,12 +14,13 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import TeamSerializer, UserSerializer, GameSerializer, PlayerSerializer
 
 
-class ScoreView(APIView):
+# accessible for all, default landing page
+class GamesView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = User.objects.get(id=request.user.id)
+        # user = User.objects.get(id=request.user.id) # all logged in users will access this
         games = Game.objects.all()
         game_serializer = GameSerializer(games, many=True)
         content = {
@@ -40,16 +41,23 @@ class TeamStatsView(APIView):
         if user.role != User.PLAYER:
             # coach could view only his/her team's stat
             if user.role == User.COACH:
-                coach = Coach.objects.filter(team_id=team_id)
-                if coach.id != user.id:
-                    return HttpResponseForbidden()
+                coach = Coach.objects.filter(id=user.id)
+                team = Team.objects.filter(id=coach.team_id)
+                team_serializer = TeamSerializer(team)
+                content = {
+                    'team': team_serializer.data,
+                    'average_score': Team_Stat.objects.filter(team_id=team_id).aggregate(Avg('score')),
 
-            players = Player.objects.filter(team_id=team_id)
-            player_serializer = PlayerSerializer(players, many=True)
-            content = {
-                'players': player_serializer.data,
-                'average_score': Team_Stat.objects.filter(team_id=team_id).aggregate(Avg('score')),
-            }
+                }
+            elif user.role == User.ADMIN:
+                teams = Team.objects.all()
+                team_serializer = TeamSerializer(teams)
+                content = {
+                    'teams': team_serializer.data,
+                    'average_score': Team_Stat.objects.filter(team_id=team_id).aggregate(Avg('score')),
+
+                }
+
             return Response(content)
         else:
             return HttpResponseForbidden()
@@ -58,18 +66,40 @@ class TeamStatsView(APIView):
 class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,
                          mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
     serializer_class = TeamSerializer
-    queryset = Team.objects.all().order_by('team_name')
+    queryset = Team.objects.all().order_by('id')
 
     lookup_field = 'id'
 
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, id=None):
-        if id:
-            return self.retrieve(request)
+    def get(self, request):
+        user = User.objects.get(id=request.user.id)
+
+        if user.role != User.PLAYER:
+            # coach could view only his/her team's stat
+            if user.role == User.COACH:
+                coach = Coach.objects.get(id=user.id)
+                print(coach.id)
+                team = Team.objects.filter(id=coach.team_id)
+                team_serializer = TeamSerializer(team)
+                content = {
+                    'team': team_serializer.data,
+                    'average_score': Team_Stat.objects.filter(team_id=coach.team_id).aggregate(Avg('score')),
+
+                }
+            elif user.role == User.ADMIN:
+                teams = Team.objects.all()
+                team_serializer = TeamSerializer(teams)
+                content = {
+                    'teams': team_serializer.data,
+                    'average_score': Team_Stat.objects.filter(team_id=coach.team_id).aggregate(Avg('score')),
+
+                }
+
+            return Response(content)
         else:
-            return self.list(request)
+            return HttpResponseForbidden()
 
     def post(self, request):
         user = User.objects.get(id=request.user.id)

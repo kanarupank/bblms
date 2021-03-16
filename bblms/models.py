@@ -10,9 +10,9 @@ from django.utils import timezone
 
 class User(AbstractUser):
     # names instead of number?
-    ADMIN = '1'
-    COACH = '2'
-    PLAYER = '3'
+    ADMIN = 1
+    COACH = 2
+    PLAYER = 3
 
     ROLE_CHOICES = [
         (COACH, 'Coach'),

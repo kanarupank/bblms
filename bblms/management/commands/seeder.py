@@ -42,9 +42,9 @@ def run_seed(self, mode):
     create_user(seeder)
     create_coach(seeder)
     create_player(seeder)
-    create_qualifier_game(seeder)
-    create_quarter_final_game(seeder)
-    create_semi_final_game(seeder)
+    create_qualifier_games(seeder)
+    create_quarter_final_games(seeder)
+    create_semi_final_games(seeder)
     create_final_game(seeder)
 
     user_stat(seeder)
@@ -132,12 +132,12 @@ def create_player(seeder):
         count += 10
 
 
-def create_qualifier_game(seeder):
+def create_qualifier_games(seeder):
     teams = Team.objects.all()
     create_game(seeder, teams, Game.L)
 
 
-def create_quarter_final_game(seeder):
+def create_quarter_final_games(seeder):
     games = Game.objects.filter(round=Game.L)
     teams = []
     for game in games:
@@ -146,7 +146,7 @@ def create_quarter_final_game(seeder):
     create_game(seeder, teams, Game.Q)
 
 
-def create_semi_final_game(seeder):
+def create_semi_final_games(seeder):
     games = Game.objects.filter(round=Game.Q)
     teams = []
     for game in games:

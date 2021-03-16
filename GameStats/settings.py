@@ -124,3 +124,4 @@ STATIC_URL = '/static/'
 
 #user model
 AUTH_USER_MODEL = "bblms.User"
+
