@@ -21,9 +21,11 @@ class CoachSerializer(serializers.ModelSerializer):
 
 
 class PlayerSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False, read_only=True)
+
     class Meta:
         model = Player
-        fields = ('user_id', 'team_id')
+        fields = ('user', 'team_id')
 
 
 class GameSerializer(serializers.ModelSerializer):

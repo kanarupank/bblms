@@ -4,6 +4,7 @@ from django_seed import Seed
 from bblms.models import User, User_Stat, Game, Team, Player, Coach, Player_Stat, Team_Stat
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib.auth.hashers import make_password
 
 # python manage.py seeder --mode=refresh
 
@@ -59,56 +60,46 @@ def clear_data():
 
 
 def create_teams(seeder):
-    for i in range(4):
+    for i in range(16):
         team = Team(team_name=seeder.faker.name())
         team.save()
 
 
 def create_user(seeder):
-    names = [seeder.faker.unique.user_name() for i in range(50)]
+    password = make_password('admin')
 
-    password = 'admin'
     # create a admin site user
     user = User(
         username='admin',
         password=password,
         is_staff=True,
         is_superuser=True,
-        is_active=True)
+        is_active=True,
+        role=1)
     user.save()
 
-    # create 10 admin
-    for i in range(0, 1):
-        user = User(
-            username=names[i],
-            password=password,
-            is_staff=True,
-            email=seeder.faker.safe_email(),
-            first_name=seeder.faker.first_name(),
-            last_name=seeder.faker.last_name(),
-            role=1)
-        user.save()
-
     # create 16 coach
-    password = 'coach'
-    for i in range(2, 6):
+    password = make_password('coach')
+    for i in range(1, 17):
         user = User(
-            username=names[i],
+            username='coach' + str(i),
             password=password,
-            is_staff=True,
+            is_staff=False,
+            is_superuser=False,
             email=seeder.faker.safe_email(),
             first_name=seeder.faker.first_name(),
             last_name=seeder.faker.last_name(),
             role=2)
         user.save()
 
-    # create 200 players
-    password = 'player'
-    for i in range(7, 47):
+    # create 160 players
+    password = make_password('player')
+    for i in range(1, 161):
         user = User(
-            username=names[i],
+            username='player' + str(i),
             password=password,
-            is_staff=True,
+            is_staff=False,
+            is_superuser=False,
             email=seeder.faker.safe_email(),
             first_name=seeder.faker.first_name(),
             last_name=seeder.faker.last_name(),
@@ -196,10 +187,10 @@ def user_stat(seeder):
     for user in users:
         for i in range(seeder.faker.random_int(min=1, max=10, step=1)):
             stat = User_Stat(user_id=user.id,
-                             login_time=seeder.faker.date_time_this_month(before_now=True, after_now=False,
-                                                                          tzinfo=timezone.utc),
-                             logout_time=seeder.faker.date_time_this_month(before_now=False, after_now=True,
-                                                                           tzinfo=timezone.utc)
+                             login_time=seeder.faker.date_time_this_month(
+                                 before_now=True, after_now=False, tzinfo=timezone.utc),
+                             logout_time=seeder.faker.date_time_this_month(
+                                 before_now=False, after_now=True, tzinfo=timezone.utc)
                              )
             stat.save()
 
@@ -208,19 +199,20 @@ def team_stat():
     teams = Team.objects.all()
 
     for team in teams:
-        scores = Game.objects.filter(Q(host_team_id=team.id) | Q(guest_team_id=team.id))
+        scores = Game.objects.filter(
+            Q(host_team_id=team.id) | Q(guest_team_id=team.id))
         for team_score in scores:
             team_id = team_score.host_team_id if team_score.host_team_id == team.id else team_score.guest_team_id
             game_score = team_score.host_team_score if team_score.host_team_id == team.id else team_score.guest_team_score
             # add host stat
-            host_stat = Team_Stat(score=game_score, game_id=team_score.id, team_id=team_id)
+            host_stat = Team_Stat(
+                score=game_score, game_id=team_score.id, team_id=team_id)
             host_stat.save()
 
             # add guest stat
             # guest_stat = Team_Stat(score=team_score.guest_score, game_id=team_score.id, team_id=team_score.guest_id)
             # guest_stat.save()
             # self.stdout.write(self.style.SUCCESS('Stat saved for Game # %s ' % team_score.id))
-
 
 # def player_stat():
 #     stats = Team_Stat.objects.all()
@@ -234,7 +226,8 @@ def team_stat():
 #             player_stat = Player_Stat(score=player_scores[i], game_id=team_stat.game_id, player_id=players[i].id)
 #             player_stat.save()
 
-def generate_random_player_score(n, total):
-    import random
-    dividers = sorted(random.sample(range(1, total), n - 1))
-    return [a - b for a, b in zip(dividers + [total], [0] + dividers)]
+
+# def generate_random_player_score(n, total):
+#     import random
+#     dividers = sorted(random.sample(range(1, total), n - 1))
+#     return [a - b for a, b in zip(dividers + [total], [0] + dividers)]
