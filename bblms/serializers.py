@@ -31,5 +31,5 @@ class PlayerSerializer(serializers.ModelSerializer):
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ('host_team_id', 'guest_team_id', 'host_team_score',
-                  'guest_team_score', 'winner', 'date', 'round')
+        fields = ('team_one', 'team_two', 'team_one_score',
+                  'team_two_score', 'winner', 'date', 'round')

@@ -9,6 +9,7 @@ from django.utils import timezone
 
 
 class User(AbstractUser):
+    # names instead of number?
     ADMIN = '1'
     COACH = '2'
     PLAYER = '3'
@@ -22,8 +23,8 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     role = models.PositiveSmallIntegerField(
-        choices=ROLE_CHOICES, default=PLAYER, verbose_name='type of role')
-    # You can create Role model separately and add ManyToMany if user has more than one role
+        choices=ROLE_CHOICES, default=PLAYER, verbose_name='type of role')  # defaulting to least privileges user
+    # can create Role model separately and add ManyToMany if user has more than one role
 
 
 class Team(models.Model):
@@ -34,22 +35,21 @@ class Team(models.Model):
 
 
 class Game(models.Model):
+    L = 'L'
     Q = 'Q'
     S = 'S'
     F = 'F'
-    W = 'W'
-
     ROUNDS_CHOICES = [
+        (L, 'League'),
         (Q, 'Quarter Final'),
         (S, 'Semi Final'),
-        (F, 'Final'),
-        (W, 'Winner')
+        (F, 'Final')
     ]
 
-    host_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='host')
-    guest_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='guest')
-    host_team_score = models.IntegerField()
-    guest_team_score = models.IntegerField()
+    team_one = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_one')
+    team_two = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_two')
+    team_one_score = models.IntegerField()
+    team_two_score = models.IntegerField()
     winner = models.ForeignKey(
         Team, on_delete=models.CASCADE, related_name='winner')
     date = models.DateField(verbose_name='game date')

@@ -14,6 +14,20 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import TeamSerializer, UserSerializer, GameSerializer, PlayerSerializer
 
 
+class ScoreView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = User.objects.get(id=request.user.id)
+        games = Game.objects.all()
+        game_serializer = GameSerializer(games, many=True)
+        content = {
+            'games': game_serializer.data,
+        }
+        return Response(content)
+
+
 class TeamStatsView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
@@ -22,29 +36,19 @@ class TeamStatsView(APIView):
 
     def get(self, request, team_id=None):
         user = User.objects.get(id=request.user.id)
-        if user.role != 3:
+
+        if user.role != User.PLAYER:
+            # coach could view only his/her team's stat
+            if user.role == User.COACH:
+                coach = Coach.objects.filter(team_id=team_id)
+                if coach.id != user.id:
+                    return HttpResponseForbidden()
+
             players = Player.objects.filter(team_id=team_id)
             player_serializer = PlayerSerializer(players, many=True)
             content = {
                 'players': player_serializer.data,
                 'average_score': Team_Stat.objects.filter(team_id=team_id).aggregate(Avg('score')),
-            }
-            return Response(content)
-        else:
-            return HttpResponseForbidden()
-
-
-class ScoreView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = User.objects.get(id=request.user.id)
-        if user.role != 3:  # admin/coach
-            games = Game.objects.all()
-            game_serializer = GameSerializer(games, many=True)
-            content = {
-                'games': game_serializer.data,
             }
             return Response(content)
         else:
@@ -125,4 +129,3 @@ class GenericPlayerAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixin
             return HttpResponseForbidden()
 
         return self.destroy(request, id)
-

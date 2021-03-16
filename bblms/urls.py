@@ -6,8 +6,8 @@ from .views import GenericTeamAPIView, GenericPlayerAPIView, TeamStatsView, Scor
 
 router = routers.DefaultRouter()
 
-# Wire up our API using automatic URL routing.
-# Additionally, we include login URLs for the browsable API.
+# Wire up API using automatic URL routing.
+# Additionally, include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
     path('team/', GenericTeamAPIView.as_view()),
@@ -18,4 +18,3 @@ urlpatterns = [
     path('games/', ScoreView.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
-

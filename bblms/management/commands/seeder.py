@@ -43,9 +43,9 @@ def run_seed(self, mode):
     create_coach(seeder)
     create_player(seeder)
     create_qualifier_game(seeder)
+    create_quarter_final_game(seeder)
     create_semi_final_game(seeder)
     create_final_game(seeder)
-    create_winner(seeder)
 
     user_stat(seeder)
     team_stat()
@@ -134,46 +134,60 @@ def create_player(seeder):
 
 def create_qualifier_game(seeder):
     teams = Team.objects.all()
-    create_game(seeder, teams, 'Q')
+    create_game(seeder, teams, Game.L)
+
+
+def create_quarter_final_game(seeder):
+    games = Game.objects.filter(round=Game.L)
+    teams = []
+    for game in games:
+        print(game.winner)
+        teams.append(game.winner)
+    create_game(seeder, teams, Game.Q)
 
 
 def create_semi_final_game(seeder):
-    games = Game.objects.filter(round='Q')
-    create_game(seeder, games, 'S')
+    games = Game.objects.filter(round=Game.Q)
+    teams = []
+    for game in games:
+        print(game.winner)
+        teams.append(game.winner)
+    create_game(seeder, games, Game.S)
 
 
 def create_final_game(seeder):
-    games = Game.objects.filter(round='S')
-    create_game(seeder, games, 'F')
-
-
-def create_winner(seeder):
-    games = Game.objects.filter(round='F')
-    create_game(seeder, games, 'W')
+    games = Game.objects.filter(round=Game.S)
+    teams = []
+    for game in games:
+        print(game.winner)
+        teams.append(game.winner)
+    create_game(seeder, games, Game.F)
 
 
 def create_game(seeder, teams, round):
-    # match-up the teams based on their order
-    hosts = teams[1::2]  # odd indexes
-    guests = teams[0::2]  # even indexes
+    # skipping the real world practice
+    # in Semi for example: 1 vs 4 and 2 vs 3
+    # match-up the teams randomly based on their order
+    teams_one = teams[1::2]  # odd indexes
+    teams_two = teams[0::2]  # even indexes
 
-    for i in range(len(hosts)):
-        host_team_score = seeder.faker.random_int(min=0, max=100)
-        guest_team_score = seeder.faker.random_int(min=0, max=100)
-        winner = hosts[i] if host_team_score > guest_team_score else guests[i]
+    for i in range(len(teams_one)):
+        team_one_score = seeder.faker.random_int(min=0, max=100)  # random scores between 0 and 100
+        team_two_score = seeder.faker.random_int(min=0, max=100)
 
-        # lets simplify things so easy to read
-        host_team_id = hosts[i].id if round == 'Q' else hosts[i].winner_id
-        guest_team_id = guests[i].id if round == 'Q' else guests[i].winner_id
-        winner_id = winner.id if round == 'Q' else winner.winner_id
+        # assume if it's a tie then the team_one is the winner
+        winner = teams_one[i] if team_one_score >= team_two_score else teams_two[
+            i]
 
-        # populate SF teams
+        team_one_id = teams_one[i].id  # if round == Game.L else teams_one[i].winner_id
+        team_two_id = teams_two[i].id  # if round == Game.L else teams_two[i].winner_id
+        winner_id = winner.id  # if round == Game.L else winner.winner_id
 
         game = Game(
-            host_team_id=host_team_id,
-            guest_team_id=guest_team_id,
-            host_team_score=host_team_score,
-            guest_team_score=guest_team_score,
+            team_one_id=team_one_id,
+            team_two_id=team_two_id,
+            team_one_score=team_one_score,
+            team_two_score=team_two_score,
             winner_id=winner_id,
             round=round,
             date=seeder.faker.date_time_this_decade(before_now=True, after_now=False, tzinfo=None))
@@ -200,18 +214,16 @@ def team_stat():
 
     for team in teams:
         scores = Game.objects.filter(
-            Q(host_team_id=team.id) | Q(guest_team_id=team.id))
+            Q(team_one_id=team.id) | Q(team_two_id=team.id))
         for team_score in scores:
-            team_id = team_score.host_team_id if team_score.host_team_id == team.id else team_score.guest_team_id
-            game_score = team_score.host_team_score if team_score.host_team_id == team.id else team_score.guest_team_score
-            # add host stat
-            host_stat = Team_Stat(
+            team_id = team_score.team_one_id if team_score.team_one_id == team.id else team_score.team_two_id
+            game_score = team_score.team_one_score if team_score.team_one_id == team.id else team_score.team_two_score
+            team_one_stat = Team_Stat(
                 score=game_score, game_id=team_score.id, team_id=team_id)
-            host_stat.save()
+            team_one_stat.save()
 
-            # add guest stat
-            # guest_stat = Team_Stat(score=team_score.guest_score, game_id=team_score.id, team_id=team_score.guest_id)
-            # guest_stat.save()
+            # team_two_stat = Team_Stat(score=team_score.guest_score, game_id=team_score.id, team_id=team_score.guest_id)
+            # team_two_stat.save()
             # self.stdout.write(self.style.SUCCESS('Stat saved for Game # %s ' % team_score.id))
 
 # def player_stat():
