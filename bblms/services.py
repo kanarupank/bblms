@@ -2,8 +2,8 @@ from django.core import serializers
 from django.db.models import Avg
 
 from .dtos import TopPlayer
-from .models import User, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
-from .serializers import TeamSerializer, UserSerializer, GameSerializer, PlayerSerializer, PlayerUserSerializer, \
+from .models import UserBBLMS, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
+from .serializers import TeamSerializer, UserBBLMSSerializer, GameSerializer, PlayerSerializer, PlayerUserSerializer, \
     TeamPlayerSerializer, TopPlayerSerializer
 
 import numpy
@@ -53,12 +53,12 @@ class PlayerService():
         user_id = user.id
         coaches_team_id = None
 
-        if user.role == User.COACH:
+        if user.role == UserBBLMS.COACH:
             coach = Coach.objects.get(user_id=user.id)
             coaches_team_id = coach.team_id
 
         # admin or coach of that team could access
-        if user.role == User.ADMIN or (
+        if user.role == UserBBLMS.ADMIN or (
                 coaches_team_id and coaches_team_id == team_id):
             team_players = Player.objects.filter(team_id=team_id)
             # all_players = Player.objects.all()

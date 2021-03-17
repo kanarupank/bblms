@@ -1,19 +1,16 @@
-from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
-from django.db.models import Avg, Sum, Count
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
+from django.db.models import Avg
+from django.http import HttpResponseForbidden
 from django.utils import timezone
-
-from .models import User, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import viewsets, mixins, generics, permissions, status
+from rest_framework import mixins, generics
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .serializers import TeamSerializer, UserSerializer, GameSerializer, PlayerSerializer, PlayerUserSerializer
+from .models import UserBBLMS, Game, Team, Player, Coach, TeamStats
+from .serializers import TeamSerializer, GameSerializer, PlayerSerializer, UserSerializer
 from .services import TeamService, PlayerService
 
 
@@ -39,7 +36,7 @@ class TopPlayersView(APIView):
     lookup_field = 'id'
 
     def get(self, request, id=None):
-        user = User.objects.get(id=request.user.id)
+        user = UserBBLMS.objects.get(id=request.user.id)
         content = PlayerService.get_top_players_for_coach(user, id)
         return Response(content)
 
@@ -53,41 +50,41 @@ class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id=None):
-        user = User.objects.get(id=request.user.id)
+        user = UserBBLMS.objects.get(id=request.user.id)
 
         if id:
-            if user.role == User.ADMIN:
+            if user.role == UserBBLMS.ADMIN:
                 return self.retrieve(request)
-            elif user.role == User.COACH:
+            elif user.role == UserBBLMS.COACH:
                 return Response(TeamService.get_team_stats_for_coach(user, id))
             else:
                 return HttpResponseForbidden()
 
         else:
-            if user.role == User.ADMIN:
+            if user.role == UserBBLMS.ADMIN:
                 return self.list(request)
-            elif user.role == User.COACH:
+            elif user.role == UserBBLMS.COACH:
                 return Response(TeamService.get_team_stats_for_coach(user))
             else:
                 return HttpResponseForbidden()
 
     def post(self, request):
-        user = User.objects.get(id=request.user.id)
-        if user.role == User.PLAYER:
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
             return HttpResponseForbidden()
 
         return self.create(request)
 
     def put(self, request, id=None):
-        user = User.objects.get(id=request.user.id)
-        if user.role == User.PLAYER:
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
             return HttpResponseForbidden()
 
         return self.update(request, id)
 
     def delete(self, request, id):
-        user = User.objects.get(id=request.user.id)
-        if user.role == User.PLAYER:
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
             return HttpResponseForbidden()
 
         return self.destroy(request, id)
@@ -104,41 +101,41 @@ class GenericPlayerAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixin
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id=None):
-        user = User.objects.get(id=request.user.id)
+        user = UserBBLMS.objects.get(id=request.user.id)
 
         if id:
-            if user.role == User.ADMIN:
+            if user.role == UserBBLMS.ADMIN:
                 return self.retrieve(request)
-            elif user.role == User.COACH:
+            elif user.role == UserBBLMS.COACH:
                 return Response(PlayerService.get_player_stats_for_coach(user, id))
             else:
                 return HttpResponseForbidden()
 
         else:
-            if user.role == User.ADMIN:
+            if user.role == UserBBLMS.ADMIN:
                 return self.list(request)
-            elif user.role == User.COACH:
+            elif user.role == UserBBLMS.COACH:
                 return Response(PlayerService.get_player_stats_for_coach(user, id))
             else:
                 return HttpResponseForbidden()
 
     def post(self, request):
-        user = User.objects.get(id=request.user.id)
-        if user.role == User.PLAYER:
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
             return HttpResponseForbidden()
 
         return self.create(request)
 
     def put(self, request, id=None):
-        user = User.objects.get(id=request.user.id)
-        if user.role == User.PLAYER:
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
             return HttpResponseForbidden()
 
         return self.update(request, id)
 
     def delete(self, request, id):
-        user = User.objects.get(id=request.user.id)
-        if user.role == User.PLAYER:
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
             return HttpResponseForbidden()
 
         return self.destroy(request, id)
@@ -151,11 +148,11 @@ class TeamStatsView(APIView):
     lookup_field = 'team_id'
 
     def get(self, request, team_id=None):
-        user = User.objects.get(id=request.user.id)
+        user = UserBBLMS.objects.get(id=request.user.id)
 
-        if user.role != User.PLAYER:
+        if user.role != UserBBLMS.PLAYER:
             # coach could view only his/her team's stat
-            if user.role == User.COACH:
+            if user.role == UserBBLMS.COACH:
                 coach = Coach.objects.filter(id=user.id)
                 team = Team.objects.filter(id=coach.team_id)
                 team_serializer = TeamSerializer(team)
@@ -164,7 +161,7 @@ class TeamStatsView(APIView):
                     'average_score': TeamStats.objects.filter(team_id=team_id).aggregate(Avg('score')),
 
                 }
-            elif user.role == User.ADMIN:
+            elif user.role == UserBBLMS.ADMIN:
                 teams = Team.objects.all()
                 team_serializer = TeamSerializer(teams)
                 content = {
@@ -184,8 +181,8 @@ class UserSessionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = User.objects.get(id=request.user.id)
-        if user.role == User.ADMIN:
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.ADMIN:
             # Query all non-expired sessions
             # use timezone.now() instead of datetime.now() in latest versions of Django
             sessions = Session.objects.filter(expire_date__gte=timezone.now())
@@ -197,7 +194,7 @@ class UserSessionView(APIView):
                 uid_list.append(data.get('_auth_user_id', None))
 
                 # Query all logged in users based on id list
-            users = User.objects.filter(id__in=uid_list)
+            users = User.objects.filter(id__in=uid_list)  # get django user
             user_serializer = UserSerializer(users)
             content = {
                 'user_sessions': user_serializer.data,

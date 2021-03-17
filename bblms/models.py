@@ -6,7 +6,7 @@ from django.utils import timezone
 # Create your models here.
 
 # create customize User extended from Django's AbstractUser user model
-class User(AbstractUser):
+class UserBBLMS(AbstractUser):
     # names instead of number?
     ADMIN = 1
     COACH = 2
@@ -55,18 +55,18 @@ class Game(models.Model):
 
 
 class Coach(models.Model):
-    user = models.OneToOneField(User(), on_delete=models.CASCADE)
+    user = models.OneToOneField(UserBBLMS(), on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
 
 
 class Player(models.Model):
-    user = models.OneToOneField(User(), on_delete=models.CASCADE)
+    user = models.OneToOneField(UserBBLMS(), on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     height = models.DecimalField(max_digits=4, decimal_places=2)
 
 
 class UserStats(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserBBLMS, on_delete=models.CASCADE)
     login_time = models.DateTimeField(
         verbose_name='login date time', default=timezone.now)
     logout_time = models.DateTimeField(verbose_name='logout date time')

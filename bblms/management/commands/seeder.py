@@ -1,12 +1,9 @@
 from django.core.management.base import BaseCommand
-import random
-from django_seed import Seed, seeder
-from bblms.models import User, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
+from django_seed import Seed
+from bblms.models import UserBBLMS, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
-
-# python manage.py seeder --mode=refresh
 
 """ Clear all data and creates addresses """
 MODE_REFRESH = 'refresh'
@@ -56,7 +53,7 @@ def clear_data():
     """Deletes all the table data"""
     Team.objects.all().delete()
     Game.objects.all().delete()
-    User.objects.all().delete()
+    UserBBLMS.objects.all().delete()
 
 
 def create_teams(seeder):
@@ -69,7 +66,7 @@ def create_user(seeder):
     password = make_password('admin')
 
     # create a admin site user
-    user = User(
+    user = UserBBLMS(
         username='admin',
         password=password,
         is_staff=True,
@@ -81,7 +78,7 @@ def create_user(seeder):
     # create 16 coach
     password = make_password('coach')
     for i in range(1, 17):
-        user = User(
+        user = UserBBLMS(
             username='coach' + str(i),
             password=password,
             is_staff=False,
@@ -95,7 +92,7 @@ def create_user(seeder):
     # create 160 players
     password = make_password('player')
     for i in range(1, 161):
-        user = User(
+        user = UserBBLMS(
             username='player' + str(i),
             password=password,
             is_staff=False,
@@ -108,7 +105,7 @@ def create_user(seeder):
 
 
 def create_coach(seeder):
-    users = User.objects.filter(role=2)
+    users = UserBBLMS.objects.filter(role=2)
     teams = Team.objects.all()
     for i in range(0, len(users)):
         coach = Coach(
@@ -118,7 +115,7 @@ def create_coach(seeder):
 
 
 def create_player(seeder):
-    users = User.objects.filter(role=3)
+    users = UserBBLMS.objects.filter(role=3)
     teams = Team.objects.all()
     count = 0
     for i in range(0, len(teams)):
@@ -214,7 +211,7 @@ def create_player_stat(seeder, team_players):
 
 
 def user_stat(seeder):
-    users = User.objects.all()
+    users = UserBBLMS.objects.all()
 
     for user in users:
         for i in range(seeder.faker.random_int(min=1, max=10, step=1)):
