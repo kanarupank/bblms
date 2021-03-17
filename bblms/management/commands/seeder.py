@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 import random
 from django_seed import Seed, seeder
-from bblms.models import User, User_Stat, Game, Team, Player, Coach, Player_Stat, Team_Stat
+from bblms.models import User, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
@@ -141,7 +141,6 @@ def create_quarter_final_games(seeder):
     games = Game.objects.filter(round=Game.L)
     teams = []
     for game in games:
-        print(game.winner)
         teams.append(game.winner)
     create_game(seeder, teams, Game.Q)
 
@@ -150,7 +149,6 @@ def create_semi_final_games(seeder):
     games = Game.objects.filter(round=Game.Q)
     teams = []
     for game in games:
-        print(game.winner)
         teams.append(game.winner)
     create_game(seeder, games, Game.S)
 
@@ -159,7 +157,6 @@ def create_final_game(seeder):
     games = Game.objects.filter(round=Game.S)
     teams = []
     for game in games:
-        print(game.winner)
         teams.append(game.winner)
     create_game(seeder, games, Game.F)
 
@@ -208,7 +205,7 @@ def create_player_stat(seeder, team_players):
     for team_player in team_players:
         team_one_player_score = seeder.faker.random_int(min=0, max=30)
         team_score += team_one_player_score
-        player_stat = Player_Stat(
+        player_stat = PlayerStats(
             player=team_player,
             score=team_one_player_score)
         player_stats.append(player_stat)
@@ -221,10 +218,24 @@ def user_stat(seeder):
 
     for user in users:
         for i in range(seeder.faker.random_int(min=1, max=10, step=1)):
-            stat = User_Stat(user_id=user.id,
+            stat = UserStats(user_id=user.id,
                              login_time=seeder.faker.date_time_this_month(
                                  before_now=True, after_now=False, tzinfo=timezone.utc),
                              logout_time=seeder.faker.date_time_this_month(
                                  before_now=False, after_now=True, tzinfo=timezone.utc)
                              )
             stat.save()
+
+
+def team_stat():
+    teams = Team.objects.all()
+
+    for team in teams:
+        games = Game.objects.filter(
+            Q(team_one_id=team.id) | Q(team_two_id=team.id))
+        for game in games:
+            team_id = game.team_one_id if game.team_one_id == team.id else game.team_two_id
+            game_score = game.team_one_score if game.team_one_id == team.id else game.team_two_score
+            team_stat_ = TeamStats(
+                score=game_score, game_id=game.id, team_id=team_id)
+            team_stat_.save()

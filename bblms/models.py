@@ -76,3 +76,11 @@ class PlayerStats(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     score = models.IntegerField()
+
+
+class TeamStats(models.Model):
+    team = models.ForeignKey(
+        Team, on_delete=models.CASCADE, related_name='team')
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name='game')
+    score = models.IntegerField()
