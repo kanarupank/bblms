@@ -1,6 +1,7 @@
 from django.core.serializers.json import Serializer
 from rest_framework import serializers
 from .models import User, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
+from django.contrib.auth.models import User
 
 
 class FlattenMixin(object):
@@ -22,6 +23,12 @@ class FlattenMixin(object):
             for key in objrep:
                 rep[key] = objrep[key]
         return rep
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'role']
 
 
 class UserSerializer(serializers.ModelSerializer):

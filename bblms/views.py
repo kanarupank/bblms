@@ -1,6 +1,8 @@
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.db.models import Avg, Sum, Count
-from django.core import serializers
+from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
+from django.utils import timezone
 
 from .models import User, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
 
@@ -174,3 +176,31 @@ class TeamStatsView(APIView):
             return Response(content)
         else:
             return HttpResponseForbidden()
+
+
+#  only the admin would access
+class UserSessionView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = User.objects.get(id=request.user.id)
+        if user.role == User.ADMIN:
+            # Query all non-expired sessions
+            # use timezone.now() instead of datetime.now() in latest versions of Django
+            sessions = Session.objects.filter(expire_date__gte=timezone.now())
+            uid_list = []
+
+            # Build a list of user ids from that query
+            for session in sessions:
+                data = session.get_decoded()
+                uid_list.append(data.get('_auth_user_id', None))
+
+                # Query all logged in users based on id list
+            users = User.objects.filter(id__in=uid_list)
+            user_serializer = UserSerializer(users)
+            content = {
+                'user_sessions': user_serializer.data,
+            }
+
+        return Response(content)

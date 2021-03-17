@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import GenericTeamAPIView, GenericPlayerAPIView, TeamStatsView, GamesView, TopPlayersView
+from .views import GenericTeamAPIView, GenericPlayerAPIView, TeamStatsView, GamesView, TopPlayersView, UserSessionView
 
 router = routers.DefaultRouter()
 
@@ -17,6 +17,6 @@ urlpatterns = [
     path('player/<int:id>', GenericPlayerAPIView.as_view()),
     path('team/stats/<int:team_id>', TeamStatsView.as_view()),
     path('games/', GamesView.as_view()),
-    path('login/', include('rest_framework.urls', namespace='rest_framework'))
-    # path('api-auth/', GenericTeamAPIView.as_view())
+    path('login/', include('rest_framework.urls', namespace='rest_framework')),
+    path('sessions/', UserSessionView.as_view())
 ]
