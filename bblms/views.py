@@ -2,7 +2,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.db.models import Avg, Sum, Count
 from django.core import serializers
 
-from .models import User, User_Stat, Game, Team, Player, Coach, Player_Stat, Team_Stat
+from .models import User, UserStats, Game, Team, Player, Coach, PlayerStats
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -46,7 +46,7 @@ class TeamStatsView(APIView):
                 team_serializer = TeamSerializer(team)
                 content = {
                     'team': team_serializer.data,
-                    'average_score': Team_Stat.objects.filter(team_id=team_id).aggregate(Avg('score')),
+                    'average_score': Game.objects.filter(team_id=team_id).aggregate(Avg('score')),
 
                 }
             elif user.role == User.ADMIN:
@@ -67,16 +67,11 @@ class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.
                          mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
     serializer_class = TeamSerializer
     queryset = Team.objects.all().order_by('id')
-
     lookup_field = 'id'
-
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, id=None):
-        # if id:
-        #     return self.retrieve(request)
-        # else:
+    def get(self, request):
         user = User.objects.get(id=request.user.id)
         if user.role == User.ADMIN:
             return self.list(request)
@@ -106,14 +101,14 @@ class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.
 
     def put(self, request, id=None):
         user = User.objects.get(id=request.user.id)
-        if (user.role == 3):
+        if user.role == User.PLAYER:
             return HttpResponseForbidden()
 
         return self.update(request, id)
 
     def delete(self, request, id):
         user = User.objects.get(id=request.user.id)
-        if (user.role == 3):
+        if user.role == User.PLAYER:
             return HttpResponseForbidden()
 
         return self.destroy(request, id)
@@ -137,21 +132,21 @@ class GenericPlayerAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixin
 
     def post(self, request):
         user = User.objects.get(id=request.user.id)
-        if (user.role == 3):
+        if user.role == User.PLAYER:
             return HttpResponseForbidden()
 
         return self.create(request)
 
     def put(self, request, id=None):
         user = User.objects.get(id=request.user.id)
-        if (user.role == 3):
+        if user.role == 3:
             return HttpResponseForbidden()
 
         return self.update(request, id)
 
     def delete(self, request, id):
         user = User.objects.get(id=request.user.id)
-        if (user.role == 3):
+        if user.role == User.PLAYER:
             return HttpResponseForbidden()
 
         return self.destroy(request, id)
