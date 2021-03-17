@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 
 from .serializers import TeamSerializer, UserSerializer, GameSerializer, PlayerSerializer, PlayerUserSerializer
-from .services import TeamsService
+from .services import TeamService, PlayerService
 
 
 # accessible for all, default landing page
@@ -27,6 +27,18 @@ class GamesView(APIView):
         content = {
             'games': game_serializer.data,
         }
+        return Response(content)
+
+
+# accessible for coach and admins, coaches could only check within their teams
+class TopPlayersView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get(self, request, id=None):
+        user = User.objects.get(id=request.user.id)
+        content = PlayerService.get_top_players_for_coach(user, id)
         return Response(content)
 
 
@@ -45,7 +57,7 @@ class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.
             if user.role == User.ADMIN:
                 return self.retrieve(request)
             elif user.role == User.COACH:
-                return Response(TeamsService.get_team_stats_for_coach(user, id))
+                return Response(TeamService.get_team_stats_for_coach(user, id))
             else:
                 return HttpResponseForbidden()
 
@@ -53,7 +65,7 @@ class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.
             if user.role == User.ADMIN:
                 return self.list(request)
             elif user.role == User.COACH:
-                return Response(TeamsService.get_team_stats_for_coach(user))
+                return Response(TeamService.get_team_stats_for_coach(user))
             else:
                 return HttpResponseForbidden()
 
@@ -90,10 +102,23 @@ class GenericPlayerAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixin
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id=None):
+        user = User.objects.get(id=request.user.id)
+
         if id:
-            return self.retrieve(request)
+            if user.role == User.ADMIN:
+                return self.retrieve(request)
+            elif user.role == User.COACH:
+                return Response(PlayerService.get_player_stats_for_coach(user, id))
+            else:
+                return HttpResponseForbidden()
+
         else:
-            return self.list(request)
+            if user.role == User.ADMIN:
+                return self.list(request)
+            elif user.role == User.COACH:
+                return Response(PlayerService.get_player_stats_for_coach(user, id))
+            else:
+                return HttpResponseForbidden()
 
     def post(self, request):
         user = User.objects.get(id=request.user.id)
@@ -104,7 +129,7 @@ class GenericPlayerAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixin
 
     def put(self, request, id=None):
         user = User.objects.get(id=request.user.id)
-        if user.role == 3:
+        if user.role == User.PLAYER:
             return HttpResponseForbidden()
 
         return self.update(request, id)

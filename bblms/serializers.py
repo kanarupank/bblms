@@ -1,3 +1,4 @@
+from django.core.serializers.json import Serializer
 from rest_framework import serializers
 from .models import User, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
 
@@ -46,18 +47,22 @@ class PlayerUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ('user', 'team_id', 'height')
+        fields = ('user', 'team_id')
 
 
 class TeamPlayerSerializer(FlattenMixin, serializers.HyperlinkedModelSerializer):
-    # user = UserSerializer(many=False, read_only=True)
-
-    # first_name = serializers.Field(source='user.first_name')
-
     class Meta:
         model = Player
-        fields = ('height', )
+        fields = ('id',)
         flatten = [('user', TeamUserSerializer)]
+
+
+# class TeamPlayerSerializer(serializers.ModelSerializer):
+#     user = TeamUserSerializer(many=False, read_only=True)
+#
+#     class Meta:
+#         model = Player
+#         fields = ('user',)
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -77,3 +82,15 @@ class GameSerializer(serializers.ModelSerializer):
         model = Game
         fields = ('team_one', 'team_two', 'team_one_score',
                   'team_two_score', 'winner', 'date', 'round')
+
+
+class TopPlayerSerializer(serializers.Serializer):
+    # def get_dump_object(self, obj):
+    #     mapped_object = {
+    #         'first_name': obj.first_name,
+    #         'last_name': obj.last_name,
+    #         'average_score': obj.average_score
+    #     }
+    first_name = serializers.CharField(max_length=500)
+    last_name = serializers.CharField(max_length=500)
+    average_score = serializers.DecimalField(max_digits=4, decimal_places=2)
