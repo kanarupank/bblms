@@ -64,15 +64,7 @@ class Coach(models.Model):
 class Player(models.Model):
     user = models.OneToOneField(User(), on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    height = models.IntegerField()
-
-
-class Team_Stat(models.Model):
-    team = models.ForeignKey(
-        Team, on_delete=models.CASCADE, related_name='team')
-    game = models.ForeignKey(
-        Game, on_delete=models.CASCADE, related_name='game')
-    score = models.IntegerField()
+    height = models.DecimalField(max_digits=4, decimal_places=2)
 
 
 class User_Stat(models.Model):

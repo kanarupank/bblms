@@ -11,7 +11,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 
-from .serializers import TeamSerializer, UserSerializer, GameSerializer, PlayerSerializer
+from .serializers import TeamSerializer, UserSerializer, GameSerializer, PlayerSerializer, PlayerUserSerializer
 
 
 # accessible for all, default landing page
@@ -73,37 +73,33 @@ class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request, id=None):
+        # if id:
+        #     return self.retrieve(request)
+        # else:
         user = User.objects.get(id=request.user.id)
+        if user.role == User.ADMIN:
+            return self.list(request)
+        elif user.role == User.COACH:
+            coach = Coach.objects.get(user_id=user.id)
+            team = Team.objects.get(id=coach.team_id)
+            team_serializer = TeamSerializer(team)
+            players = Player.objects.filter(team_id=coach.team_id)
+            player_serializer = PlayerUserSerializer(players, many=True)
 
-        if user.role != User.PLAYER:
-            # coach could view only his/her team's stat
-            if user.role == User.COACH:
-                coach = Coach.objects.get(id=user.id)
-                print(coach.id)
-                team = Team.objects.filter(id=coach.team_id)
-                team_serializer = TeamSerializer(team)
-                content = {
-                    'team': team_serializer.data,
-                    'average_score': Team_Stat.objects.filter(team_id=coach.team_id).aggregate(Avg('score')),
-
-                }
-            elif user.role == User.ADMIN:
-                teams = Team.objects.all()
-                team_serializer = TeamSerializer(teams)
-                content = {
-                    'teams': team_serializer.data,
-                    'average_score': Team_Stat.objects.filter(team_id=coach.team_id).aggregate(Avg('score')),
-
-                }
-
+            content = {
+                'team': team_serializer.data,
+                'average_score': Team_Stat.objects.filter(team_id=coach.team_id).aggregate(Avg('score')),
+                'players': player_serializer.data
+            }
             return Response(content)
+
         else:
             return HttpResponseForbidden()
 
     def post(self, request):
         user = User.objects.get(id=request.user.id)
-        if (user.role == 3):
+        if (user.role == User.PLAYER):
             return HttpResponseForbidden()
 
         return self.create(request)

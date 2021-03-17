@@ -8,6 +8,20 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'first_name', 'last_name', 'role']
 
 
+class PlayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = ('user_id', 'team_id', 'height')
+
+
+class PlayerUserSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Player
+        fields = ('user', 'team_id', 'height')
+
+
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
@@ -18,14 +32,6 @@ class CoachSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coach
         fields = ('user_id', 'team_id')
-
-
-class PlayerSerializer(serializers.ModelSerializer):
-    user = UserSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = Player
-        fields = ('user', 'team_id')
 
 
 class GameSerializer(serializers.ModelSerializer):

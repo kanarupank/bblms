@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 import random
-from django_seed import Seed
+from django_seed import Seed, seeder
 from bblms.models import User, User_Stat, Game, Team, Player, Coach, Player_Stat, Team_Stat
 from django.utils import timezone
 from django.db.models import Q
@@ -127,7 +127,7 @@ def create_player(seeder):
             player = Player(
                 team_id=teams[i].id,
                 user_id=users[j].id,
-                height=seeder.faker.random_int())
+                height=seeder.faker.random_int(min=1, max=10))  # assigning integer for height for now
             player.save()
         count += 10
 
@@ -172,17 +172,16 @@ def create_game(seeder, teams, round):
     teams_two = teams[0::2]  # even indexes
 
     for i in range(len(teams_one)):
-        team_one_score = seeder.faker.random_int(min=0, max=100)  # random scores between 0 and 100
-        team_two_score = seeder.faker.random_int(min=0, max=100)
+        team_one_id = teams_one[i].id
+        team_two_id = teams_two[i].id
+        team_one_players = Player.objects.filter(team_id=team_one_id)
+        team_two_players = Player.objects.filter(team_id=team_two_id)
+        team_one_player_stats, team_one_score = create_player_stat(seeder, team_one_players)
+        team_two_player_stats, team_two_score = create_player_stat(seeder, team_two_players)
 
         # assume if it's a tie then the team_one is the winner
-        winner = teams_one[i] if team_one_score >= team_two_score else teams_two[
-            i]
-
-        team_one_id = teams_one[i].id  # if round == Game.L else teams_one[i].winner_id
-        team_two_id = teams_two[i].id  # if round == Game.L else teams_two[i].winner_id
-        winner_id = winner.id  # if round == Game.L else winner.winner_id
-
+        winner = teams_one[i] if team_one_score >= team_two_score else teams_two[i]
+        winner_id = winner.id
         game = Game(
             team_one_id=team_one_id,
             team_two_id=team_two_id,
@@ -193,6 +192,28 @@ def create_game(seeder, teams, round):
             date=seeder.faker.date_time_this_decade(before_now=True, after_now=False, tzinfo=None))
 
         game.save()
+        save_player_stat(team_one_player_stats, game)
+        save_player_stat(team_two_player_stats, game)
+
+
+def save_player_stat(player_status, game):
+    for player_stat in player_status:
+        player_stat.game = game
+        player_stat.save()
+
+
+def create_player_stat(seeder, team_players):
+    player_stats = []
+    team_score = 0
+    for team_player in team_players:
+        team_one_player_score = seeder.faker.random_int(min=0, max=30)
+        team_score += team_one_player_score
+        player_stat = Player_Stat(
+            player=team_player,
+            score=team_one_player_score)
+        player_stats.append(player_stat)
+
+    return player_stats, team_score
 
 
 def user_stat(seeder):
@@ -207,39 +228,3 @@ def user_stat(seeder):
                                  before_now=False, after_now=True, tzinfo=timezone.utc)
                              )
             stat.save()
-
-
-def team_stat():
-    teams = Team.objects.all()
-
-    for team in teams:
-        scores = Game.objects.filter(
-            Q(team_one_id=team.id) | Q(team_two_id=team.id))
-        for team_score in scores:
-            team_id = team_score.team_one_id if team_score.team_one_id == team.id else team_score.team_two_id
-            game_score = team_score.team_one_score if team_score.team_one_id == team.id else team_score.team_two_score
-            team_one_stat = Team_Stat(
-                score=game_score, game_id=team_score.id, team_id=team_id)
-            team_one_stat.save()
-
-            # team_two_stat = Team_Stat(score=team_score.guest_score, game_id=team_score.id, team_id=team_score.guest_id)
-            # team_two_stat.save()
-            # self.stdout.write(self.style.SUCCESS('Stat saved for Game # %s ' % team_score.id))
-
-# def player_stat():
-#     stats = Team_Stat.objects.all()
-
-#     for team_stat in stats:
-#         # this should not be used in production, however this is dummy data to whatever gets jobs done for now
-#         players = Player.objects.filter(team_id=team_stat.team_id).order_by('?')[:5]
-#         player_scores = generate_random_player_score(5, team_stat.score)
-
-#         for i in range(len(players)):
-#             player_stat = Player_Stat(score=player_scores[i], game_id=team_stat.game_id, player_id=players[i].id)
-#             player_stat.save()
-
-
-# def generate_random_player_score(n, total):
-#     import random
-#     dividers = sorted(random.sample(range(1, total), n - 1))
-#     return [a - b for a, b in zip(dividers + [total], [0] + dividers)]
