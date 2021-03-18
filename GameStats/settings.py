@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'bblms',
     'django_seed',
     'rest_framework',
+    'drf_yasg',
 
 ]
 
