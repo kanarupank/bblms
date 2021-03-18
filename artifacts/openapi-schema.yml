@@ -1,0 +1,452 @@
+openapi: 3.0.2
+info:
+  title: ''
+  version: ''
+paths:
+  /:
+    get:
+      operationId: listGames
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - ''
+  /team/:
+    get:
+      operationId: retrieveTeam
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+          description: ''
+      tags:
+      - team
+    post:
+      operationId: createTeam
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Team'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+          description: ''
+      tags:
+      - team
+    put:
+      operationId: updateTeam
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Team'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+          description: ''
+      tags:
+      - team
+    delete:
+      operationId: destroyTeam
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - team
+  /team/{id}:
+    get:
+      operationId: retrieveTeam
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this team.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+          description: ''
+      tags:
+      - team
+    post:
+      operationId: createTeam
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this team.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Team'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+          description: ''
+      tags:
+      - team
+    put:
+      operationId: updateTeam
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this team.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Team'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+          description: ''
+      tags:
+      - team
+    delete:
+      operationId: destroyTeam
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this team.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - team
+  /team/{id}/top-players:
+    get:
+      operationId: listTopPlayers
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - team
+  /player/:
+    get:
+      operationId: retrievePlayer
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+      tags:
+      - player
+    post:
+      operationId: createPlayer
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+      tags:
+      - player
+    put:
+      operationId: updatePlayer
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+      tags:
+      - player
+    delete:
+      operationId: destroyPlayer
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - player
+  /player/{id}:
+    get:
+      operationId: retrievePlayer
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this player.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+      tags:
+      - player
+    post:
+      operationId: createPlayer
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this player.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+      tags:
+      - player
+    put:
+      operationId: updatePlayer
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this player.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+      tags:
+      - player
+    delete:
+      operationId: destroyPlayer
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this player.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - player
+  /team/stats/{team_id}:
+    get:
+      operationId: retrieveTeamStats
+      description: ''
+      parameters:
+      - name: team_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - team
+  /games/:
+    get:
+      operationId: listGames
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - games
+  /sessions/:
+    get:
+      operationId: listUserSessions
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - sessions
+components:
+  schemas:
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        team_name:
+          type: string
+          maxLength: 100
+      required:
+      - team_name
+    Player:
+      type: object
+      properties:
+        user_id:
+          type: string
+          readOnly: true
+        team_id:
+          type: string
+          readOnly: true
+        height:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 100
+          minimum: -100
+      required:
+      - height
