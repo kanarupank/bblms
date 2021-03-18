@@ -20,7 +20,6 @@ class GamesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # user = User.objects.get(id=request.user.id) # all logged in users will access this
         games = Game.objects.all()
         game_serializer = GameSerializer(games, many=True)
         content = {
@@ -51,43 +50,31 @@ class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.
 
     def get(self, request, id=None):
         user = UserBBLMS.objects.get(id=request.user.id)
+        return Response(TeamService.get_team_stats(user, id))
 
-        if id:
-            if user.role == UserBBLMS.ADMIN:
-                return self.retrieve(request)
-            elif user.role == UserBBLMS.COACH:
-                return Response(TeamService.get_team_stats_for_coach(user, id))
-            else:
-                return HttpResponseForbidden()
 
-        else:
-            if user.role == UserBBLMS.ADMIN:
-                return self.list(request)
-            elif user.role == UserBBLMS.COACH:
-                return Response(TeamService.get_team_stats_for_coach(user))
-            else:
-                return HttpResponseForbidden()
+def post(self, request):
+    user = UserBBLMS.objects.get(id=request.user.id)
+    if user.role == UserBBLMS.PLAYER:
+        return HttpResponseForbidden()
 
-    def post(self, request):
-        user = UserBBLMS.objects.get(id=request.user.id)
-        if user.role == UserBBLMS.PLAYER:
-            return HttpResponseForbidden()
+    return self.create(request)
 
-        return self.create(request)
 
-    def put(self, request, id=None):
-        user = UserBBLMS.objects.get(id=request.user.id)
-        if user.role == UserBBLMS.PLAYER:
-            return HttpResponseForbidden()
+def put(self, request, id=None):
+    user = UserBBLMS.objects.get(id=request.user.id)
+    if user.role == UserBBLMS.PLAYER:
+        return HttpResponseForbidden()
 
-        return self.update(request, id)
+    return self.update(request, id)
 
-    def delete(self, request, id):
-        user = UserBBLMS.objects.get(id=request.user.id)
-        if user.role == UserBBLMS.PLAYER:
-            return HttpResponseForbidden()
 
-        return self.destroy(request, id)
+def delete(self, request, id):
+    user = UserBBLMS.objects.get(id=request.user.id)
+    if user.role == UserBBLMS.PLAYER:
+        return HttpResponseForbidden()
+
+    return self.destroy(request, id)
 
 
 class GenericPlayerAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,

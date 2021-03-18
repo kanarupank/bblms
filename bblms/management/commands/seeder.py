@@ -39,6 +39,8 @@ def run_seed(self, mode):
     create_user(seeder)
     create_coach(seeder)
     create_player(seeder)
+
+    # create games and player statistics
     create_qualifier_games(seeder)
     create_quarter_final_games(seeder)
     create_semi_final_games(seeder)
@@ -46,7 +48,6 @@ def run_seed(self, mode):
 
     user_stat(seeder)
     team_stat()
-    # player_stat()
 
 
 def clear_data():
@@ -57,7 +58,7 @@ def clear_data():
 
 
 def create_teams(seeder):
-    for i in range(16):
+    for _ in range(16):
         team = Team(team_name=seeder.faker.name())
         team.save()
 
@@ -214,7 +215,7 @@ def user_stat(seeder):
     users = UserBBLMS.objects.all()
 
     for user in users:
-        for i in range(seeder.faker.random_int(min=1, max=10, step=1)):
+        for _ in range(seeder.faker.random_int(min=1, max=10, step=1)):
             stat = UserStats(user_id=user.id,
                              login_time=seeder.faker.date_time_this_month(
                                  before_now=True, after_now=False, tzinfo=timezone.utc),

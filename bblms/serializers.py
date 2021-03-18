@@ -1,7 +1,8 @@
-from django.core.serializers.json import Serializer
 from rest_framework import serializers
-from .models import UserBBLMS, UserStats, Game, Team, Player, Coach, PlayerStats, TeamStats
 from django.contrib.auth.models import User
+from rest_framework import serializers
+
+from .models import UserBBLMS, Game, Team, Player, Coach
 
 
 class FlattenMixin(object):
@@ -70,6 +71,12 @@ class TeamSerializer(serializers.ModelSerializer):
         fields = ('id', 'team_name')
 
 
+class TeamAllSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ('id', 'team_name')
+
+
 class CoachSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coach
@@ -87,10 +94,3 @@ class TopPlayerSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=500)
     last_name = serializers.CharField(max_length=500)
     average_score = serializers.DecimalField(max_digits=4, decimal_places=2)
-
-# class TeamPlayerSerializer(serializers.ModelSerializer):
-#     user = TeamUserSerializer(many=False, read_only=True)
-#
-#     class Meta:
-#         model = Player
-#         fields = ('user',)
