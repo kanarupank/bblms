@@ -34,13 +34,13 @@ class UserBBLMSSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = UserBBLMS
         fields = ['id', 'username', 'first_name', 'last_name', 'role']
 
 
 class TeamUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = UserBBLMS
         fields = ['username', 'first_name', 'last_name']
 
 
@@ -61,17 +61,11 @@ class PlayerUserSerializer(serializers.ModelSerializer):
 class TeamPlayerSerializer(FlattenMixin, serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Player
-        fields = ('id',)
+        fields = ('id', 'height')
         flatten = [('user', TeamUserSerializer)]
 
 
 class TeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = ('id', 'team_name')
-
-
-class TeamAllSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = ('id', 'team_name')

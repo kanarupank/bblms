@@ -52,29 +52,26 @@ class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.
         user = UserBBLMS.objects.get(id=request.user.id)
         return Response(TeamService.get_team_stats(user, id))
 
+    def post(self, request):
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
+            return HttpResponseForbidden()
 
-def post(self, request):
-    user = UserBBLMS.objects.get(id=request.user.id)
-    if user.role == UserBBLMS.PLAYER:
-        return HttpResponseForbidden()
+        return self.create(request)
 
-    return self.create(request)
+    def put(self, request, id=None):
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
+            return HttpResponseForbidden()
 
+        return self.update(request, id)
 
-def put(self, request, id=None):
-    user = UserBBLMS.objects.get(id=request.user.id)
-    if user.role == UserBBLMS.PLAYER:
-        return HttpResponseForbidden()
+    def delete(self, request, id):
+        user = UserBBLMS.objects.get(id=request.user.id)
+        if user.role == UserBBLMS.PLAYER:
+            return HttpResponseForbidden()
 
-    return self.update(request, id)
-
-
-def delete(self, request, id):
-    user = UserBBLMS.objects.get(id=request.user.id)
-    if user.role == UserBBLMS.PLAYER:
-        return HttpResponseForbidden()
-
-    return self.destroy(request, id)
+        return self.destroy(request, id)
 
 
 class GenericPlayerAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,

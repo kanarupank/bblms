@@ -5,7 +5,7 @@ from .dtos import TopPlayerDto
 from .messages import USER_NOT_AUTHORIZED
 from .models import UserBBLMS, Team, Player, Coach, PlayerStats, TeamStats
 from .serializers import TeamSerializer, PlayerUserSerializer, \
-    TeamPlayerSerializer, TopPlayerSerializer
+    TeamPlayerSerializer, TopPlayerSerializer, PlayerSerializer
 
 
 class TeamService():
@@ -30,7 +30,7 @@ class TeamService():
                 team = Team.objects.get(id=team_id)
                 team_serializer = TeamSerializer(team)
                 players = Player.objects.filter(team_id=team_id)
-                player_serializer = TeamPlayerSerializer(players)
+                player_serializer = TeamPlayerSerializer(players, many=True)
                 content = {
                     'team': team_serializer.data,
                     'average_score': TeamStats.objects.filter(team_id=team_id).aggregate(Avg('score')),
@@ -63,42 +63,41 @@ class PlayerService():
 
         return content
 
+    @staticmethod
+    def get_top_players_for_coach(user, team_id=None):
+        """ Returns the list of users within the team whose scores are above the 90th percentile"""
+        coaches_team_id = None
+        if user.role == UserBBLMS.COACH:
+            coach = Coach.objects.get(user_id=user.id)
+            coaches_team_id = coach.team_id
 
-@staticmethod
-def get_top_players_for_coach(user, team_id=None):
-    """ Returns the list of users within the team whose scores are above the 90th percentile"""
-    coaches_team_id = None
-    if user.role == UserBBLMS.COACH:
-        coach = Coach.objects.get(user_id=user.id)
-        coaches_team_id = coach.team_id
+        # admin or coach of that team could access
+        if user.role == UserBBLMS.ADMIN or (
+                coaches_team_id and coaches_team_id == team_id):
+            team_players = Player.objects.filter(team_id=team_id)
+            # all_players = Player.objects.all() # initially assumed across all teams
+            top_players_in_the_team = []
+            player_avg_list = []
+            for player in team_players:
+                player_avg_list.append(
+                    PlayerStats.objects.filter(id=player.id).aggregate(Avg('score')).get('score__avg'))
 
-    # admin or coach of that team could access
-    if user.role == UserBBLMS.ADMIN or (
-            coaches_team_id and coaches_team_id == team_id):
-        team_players = Player.objects.filter(team_id=team_id)
-        # all_players = Player.objects.all() # initially assumed across all teams
-        top_players_in_the_team = []
-        player_avg_list = []
-        for player in team_players:
-            player_avg_list.append(
-                PlayerStats.objects.filter(id=player.id).aggregate(Avg('score')).get('score__avg'))
+            percentile_90_avg = numpy.percentile(player_avg_list, 90)
 
-        percentile_90_avg = numpy.percentile(player_avg_list, 90)
+            for team_player in team_players:
+                avg = PlayerStats.objects.filter(id=team_player.id).aggregate(Avg('score')).get(
+                    'score__avg')
+                print(avg)
+                if percentile_90_avg <= avg:
+                    top_player_dto = TopPlayerDto(team_player.user.first_name, team_player.user.last_name, avg)
+                    top_players_in_the_team.append(top_player_dto)
+            serializer_top_players = TopPlayerSerializer(top_players_in_the_team, many=True)
+            content = {
+                'players': serializer_top_players.data,
+                '90th percentile average': percentile_90_avg,
+            }
 
-        for team_player in team_players:
-            avg = PlayerStats.objects.filter(id=team_player.id).aggregate(Avg('score')).get(
-                'score__avg')
-            print(avg)
-            if percentile_90_avg <= avg:
-                top_player_dto = TopPlayerDto(team_player.user.first_name, team_player.user.last_name, avg)
-                top_players_in_the_team.append(top_player_dto)
-        serializer_top_players = TopPlayerSerializer(top_players_in_the_team, many=True)
-        content = {
-            'players': serializer_top_players.data,
-            '90th percentile average': percentile_90_avg,
-        }
+        else:
+            content = USER_NOT_AUTHORIZED
 
-    else:
-        content = USER_NOT_AUTHORIZED
-
-    return content
+        return content
