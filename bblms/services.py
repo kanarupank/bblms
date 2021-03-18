@@ -1,8 +1,8 @@
 import numpy
-from django.db.models import Avg
+from django.db.models import Avg, Count
 
 from .dtos import TopPlayerDto
-from .messages import USER_NOT_AUTHORIZED
+from .messages import USER_NOT_AUTHORIZED, NOT_SUPPORTED
 from .models import UserBBLMS, Team, Player, Coach, PlayerStats, TeamStats
 from .serializers import TeamSerializer, PlayerUserSerializer, \
     TeamPlayerSerializer, TopPlayerSerializer, PlayerSerializer
@@ -46,6 +46,33 @@ class TeamService():
 
 
 class PlayerService():
+    @staticmethod
+    def get_player_stats(user, player_id=None):
+        content = USER_NOT_AUTHORIZED;
+        player = Player.objects.get(id=player_id)
+        if user.role == UserBBLMS.COACH:
+            coach = Coach.objects.get(user_id=user.id)
+            if player_id:
+                if coach.team_id == player.team_id:
+                    player_serializer = TeamPlayerSerializer(player)
+                content = {
+                    'team': player_serializer.data,
+                    'average_score': PlayerStats.objects.filter(player_id=player_id).aggregate(Avg('score')),
+                    'players': player_serializer.data
+                }
+        elif user.role == UserBBLMS.ADMIN:
+            if player_id:
+                player_serializer = TeamPlayerSerializer(player)
+                content = {
+                    'average_score': PlayerStats.objects.filter(player_id=player_id).aggregate(Avg('score')).get(
+                        'score__avg'),
+                    'number_of_games': PlayerStats.objects.filter(player_id=player_id).count(),
+                    'players': player_serializer.data
+                }
+            else:
+                content = NOT_SUPPORTED
+            return content
+
     @staticmethod
     def get_player_stats_for_coach(coach_user, player_id=None):
         coach = Coach.objects.get(user_id=coach_user.id)

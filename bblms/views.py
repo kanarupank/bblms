@@ -30,6 +30,8 @@ class GamesView(APIView):
 
 # accessible for coach and admins, coaches could only check within their teams
 class TopPlayersView(APIView):
+    """ API retrieves the top players in the team who are in the 90th percentile """
+
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
@@ -42,6 +44,7 @@ class TopPlayersView(APIView):
 
 class GenericTeamAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,
                          mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
+    """ Team API """
     serializer_class = TeamSerializer
     queryset = Team.objects.all().order_by('id')
     lookup_field = 'id'
@@ -86,22 +89,7 @@ class GenericPlayerAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixin
 
     def get(self, request, id=None):
         user = UserBBLMS.objects.get(id=request.user.id)
-
-        if id:
-            if user.role == UserBBLMS.ADMIN:
-                return self.retrieve(request)
-            elif user.role == UserBBLMS.COACH:
-                return Response(PlayerService.get_player_stats_for_coach(user, id))
-            else:
-                return HttpResponseForbidden()
-
-        else:
-            if user.role == UserBBLMS.ADMIN:
-                return self.list(request)
-            elif user.role == UserBBLMS.COACH:
-                return Response(PlayerService.get_player_stats_for_coach(user, id))
-            else:
-                return HttpResponseForbidden()
+        return Response(PlayerService.get_player_stats(user, id))
 
     def post(self, request):
         user = UserBBLMS.objects.get(id=request.user.id)
@@ -147,7 +135,7 @@ class TeamStatsView(APIView):
                 }
             elif user.role == UserBBLMS.ADMIN:
                 teams = Team.objects.all()
-                team_serializer = TeamSerializer(teams)
+                team_serializer = TeamSerializer(teams, many=True)
                 content = {
                     'teams': team_serializer.data,
                     'average_score': TeamStats.objects.filter(team_id=team_id).aggregate(Avg('score')),

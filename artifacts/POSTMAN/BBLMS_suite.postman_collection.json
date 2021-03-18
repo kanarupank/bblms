@@ -1,0 +1,215 @@
+{
+	"id": "6908c40a-22e0-d8f4-2296-370dbfcceb93",
+	"name": "BBLMS_suite",
+	"description": "",
+	"order": [
+		"1389a845-97a7-6847-df8a-d883b787689e",
+		"97399b93-e15a-25bb-93a3-fd44ad88e4dd",
+		"81fae0b5-7acf-9bf6-5ed5-c1d5155e672e",
+		"5da9523c-60c2-aac6-974f-a9c4957b0df2",
+		"d043a251-8a5d-be7c-08c9-ea1d9e9fa569",
+		"91b53df9-94ee-6af5-09e4-54c3e39ca091",
+		"9b854767-0964-3532-1ebb-8c609ac3cc06"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 0,
+	"owner": 0,
+	"public": false,
+	"requests": [
+		{
+			"id": "1389a845-97a7-6847-df8a-d883b787689e",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{url}}",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1616068293056,
+			"name": "Team",
+			"description": "",
+			"collectionId": "6908c40a-22e0-d8f4-2296-370dbfcceb93",
+			"responses": []
+		},
+		{
+			"id": "5da9523c-60c2-aac6-974f-a9c4957b0df2",
+			"name": "Update a Team",
+			"description": "",
+			"collectionId": "6908c40a-22e0-d8f4-2296-370dbfcceb93",
+			"method": "PUT",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"id": "basic"
+			},
+			"headers": "",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n    \"team_name\": \"sdvsdfa33fsdf\"\n}",
+			"url": "http://127.0.0.1:8000/team/18",
+			"responses": [],
+			"pathVariableData": [],
+			"queryParams": [],
+			"headerData": [],
+			"collection_id": "6908c40a-22e0-d8f4-2296-370dbfcceb93"
+		},
+		{
+			"id": "81fae0b5-7acf-9bf6-5ed5-c1d5155e672e",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{ur}}/team/",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1616068261701,
+			"name": "Create a Team",
+			"description": "",
+			"collectionId": "6908c40a-22e0-d8f4-2296-370dbfcceb93",
+			"responses": [],
+			"rawModeData": "{\n    \"team_name\": \"sdfadsfsfsdf\"\n}"
+		},
+		{
+			"id": "91b53df9-94ee-6af5-09e4-54c3e39ca091",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{url}}/games",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1616068843554,
+			"name": "Games Stat",
+			"description": "",
+			"collectionId": "6908c40a-22e0-d8f4-2296-370dbfcceb93",
+			"responses": []
+		},
+		{
+			"id": "97399b93-e15a-25bb-93a3-fd44ad88e4dd",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\n//admin: \n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "admin",
+					"value": "",
+					"description": "",
+					"enabled": false
+				}
+			],
+			"url": "{{url}}/team/1",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1616068316553,
+			"name": "Team/<id>",
+			"description": "",
+			"collectionId": "6908c40a-22e0-d8f4-2296-370dbfcceb93",
+			"responses": []
+		},
+		{
+			"id": "9b854767-0964-3532-1ebb-8c609ac3cc06",
+			"headers": "//player_id: 771\n",
+			"headerData": [
+				{
+					"key": "player_id",
+					"value": "771",
+					"description": "",
+					"enabled": false
+				}
+			],
+			"url": "{{url}}/player/11",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1616068770958,
+			"name": "Player/<id>",
+			"description": "",
+			"collectionId": "6908c40a-22e0-d8f4-2296-370dbfcceb93",
+			"responses": []
+		},
+		{
+			"id": "d043a251-8a5d-be7c-08c9-ea1d9e9fa569",
+			"name": "Teams Stat",
+			"description": "",
+			"collectionId": "6908c40a-22e0-d8f4-2296-370dbfcceb93",
+			"method": "GET",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"id": "basic"
+			},
+			"headers": "",
+			"data": [],
+			"rawModeData": "",
+			"url": "http://localhost:8000/team/stats/21",
+			"responses": [],
+			"pathVariableData": [],
+			"queryParams": [],
+			"headerData": [],
+			"collection_id": "6908c40a-22e0-d8f4-2296-370dbfcceb93"
+		}
+	]
+}
